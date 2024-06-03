@@ -19,7 +19,7 @@ static NSString *const FIELD_TYPE = @"type";
 static NSString *const FIELD_SIZE = @"size";
 
 
-@interface RNSaveDialog () <UISaveDialogDelegate, UIAdaptivePresentationControllerDelegate>
+@interface RNSaveDialog () <UIDocumentPickerDelegate, UIAdaptivePresentationControllerDelegate>
 @end
 
 @implementation RNSaveDialog {
@@ -37,9 +37,7 @@ static NSString *const FIELD_SIZE = @"size";
 
 - (void)dealloc
 {
-    for (NSURL *url in urlsInOpenMode) {
-        [url stopAccessingSecurityScopedResource];
-    }
+    
 }
 
 + (BOOL)requiresMainQueueSetup
@@ -64,10 +62,9 @@ RCT_EXPORT_METHOD(saveFile:(NSDictionary *)options
     [promiseWrapper setPromiseWithInProgressCheck:resolve rejecter:reject fromCallSite:@"saveFile"];
 
     UIDocumentPickerViewController *documentPicker;
-    NSURL *path = [NSURL fileURLWithPath:options[OPTION_PATH]];
+    NSURL *path = [NSURL fileURLWithPath:options[@"path"]];
 
-    mode = UIDocumentPickerModeExportToService;
-    documentPicker = [[UIDocumentPickerViewController alloc] initWithURL:path inMode:mode];
+    documentPicker = [[UIDocumentPickerViewController alloc] initWithURL:path inMode:UIDocumentPickerModeExportToService];
 
     documentPicker.modalPresentationStyle = presentationStyle;
     documentPicker.modalTransitionStyle = transitionStyle;
@@ -109,10 +106,6 @@ RCT_EXPORT_METHOD(saveFile:(NSDictionary *)options
 - (NSMutableDictionary *)getMetadataForUrl:(NSURL *)url error:(NSError **)error
 {
     __block NSMutableDictionary *result = [NSMutableDictionary dictionary];
-
-    if (mode == UIDocumentPickerModeOpen) {
-        [urlsInOpenMode addObject:url];
-    }
     
     // TODO handle error
     [url startAccessingSecurityScopedResource];
@@ -123,10 +116,10 @@ RCT_EXPORT_METHOD(saveFile:(NSDictionary *)options
     // TODO double check this implemenation, see eg. https://developer.apple.com/documentation/foundation/nsfilecoordinator/1412420-prepareforreadingitemsaturls
     [coordinator coordinateReadingItemAtURL:url options:NSFileCoordinatorReadingResolvesSymbolicLink error:&fileError byAccessor:^(NSURL *newURL) {
         // If the coordinated operation fails, then the accessor block never runs
-        result[FIELD_URI] = ((mode == UIDocumentPickerModeOpen) ? url : newURL).absoluteString;
+        result[FIELD_URI] = url.absoluteString;
         
         NSError *copyError;
-        NSURL *maybeFileCopyPath = copyDestination ? [RNDocumentPicker copyToUniqueDestinationFrom:newURL usingDestinationPreset:copyDestination error:&copyError] : nil;
+        NSURL *maybeFileCopyPath = saveDestination ? [RNSaveDialog copyToUniqueDestinationFrom:newURL usingDestinationPreset:saveDestination error:&copyError] : nil;
         
         if (!copyError) {
             result[FIELD_FILE_COPY_URI] = RCTNullIfNil(maybeFileCopyPath.absoluteString);
@@ -143,7 +136,7 @@ RCT_EXPORT_METHOD(saveFile:(NSDictionary *)options
             result[FIELD_SIZE] = fileAttributes[NSFileSize];
         } else {
             result[FIELD_SIZE] = [NSNull null];
-            NSLog(@"RNDocumentPicker: %@", attributesError);
+            NSLog(@"RNSaveDialog: %@", attributesError);
         }
 
         if (newURL.pathExtension != nil) {
@@ -161,9 +154,7 @@ RCT_EXPORT_METHOD(saveFile:(NSDictionary *)options
         }
     }];
 
-    if (mode != UIDocumentPickerModeOpen) {
-        [url stopAccessingSecurityScopedResource];
-    }
+    [url stopAccessingSecurityScopedResource];
 
     if (fileError) {
         *error = fileError;
@@ -178,17 +169,38 @@ RCT_EXPORT_METHOD(releaseSecureAccess:(NSArray<NSString *> *)uris
                   reject:(RCTPromiseRejectBlock)reject)
 {
     NSMutableArray *discardedItems = [NSMutableArray array];
-    for (NSString *uri in uris) {
-        for (NSURL *url in urlsInOpenMode) {
-            if ([url.absoluteString isEqual:uri]) {
-                [url stopAccessingSecurityScopedResource];
-                [discardedItems addObject:url];
-                break;
-            }
-        }
-    }
-    [urlsInOpenMode removeObjectsInArray:discardedItems];
     resolve(nil);
+}
+
++ (NSURL *)copyToUniqueDestinationFrom:(NSURL *)url usingDestinationPreset:(NSString *)saveToDirectory error:(NSError **)error
+{
+    NSURL *destinationRootDir = [self getDirectoryForFileCopy:saveToDirectory];
+    // we don't want to rename the file so we put it into a unique location
+    NSString *uniqueSubDirName = [[NSUUID UUID] UUIDString];
+    NSURL *destinationDir = [destinationRootDir URLByAppendingPathComponent:[NSString stringWithFormat:@"%@/", uniqueSubDirName]];
+    NSURL *destinationUrl = [destinationDir URLByAppendingPathComponent:[NSString stringWithFormat:@"%@", url.lastPathComponent]];
+
+    [NSFileManager.defaultManager createDirectoryAtURL:destinationDir withIntermediateDirectories:YES attributes:nil error:error];
+    if (*error) {
+        return nil;
+    }
+    [NSFileManager.defaultManager copyItemAtURL:url toURL:destinationUrl error:error];
+    if (*error) {
+        return nil;
+    } else {
+        return destinationUrl;
+    }
+}
+
++ (NSURL *)getDirectoryForFileCopy:(NSString *)copyToDirectory
+{
+    if ([@"cachesDirectory" isEqualToString:copyToDirectory]) {
+        return [NSFileManager.defaultManager URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask].firstObject;
+    } else if ([@"documentDirectory" isEqualToString:copyToDirectory]) {
+        return [NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
+    }
+    // this should not happen as the value is checked in JS, but we fall back to NSTemporaryDirectory()
+    return [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
 }
 
 - (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller
