@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.authors      = package["author"]
 
   s.platforms    = { :ios => "11.0" }
-  s.source       = { :git => "https://github.com/emmanuel-nike/react-native-save-dialog.git" }
+  s.source       = { :git => "https://github.com/emmanuel-nike/react-native-save-dialog.git", :branch => 'master' }
 
   s.source_files = "ios/**/*.{h,m,mm}"
 
