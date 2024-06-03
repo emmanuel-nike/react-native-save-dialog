@@ -16,7 +16,7 @@ public class RNSaveDialogPackage extends TurboReactPackage {
   @Nullable
   @Override
   public NativeModule getModule(String name, ReactApplicationContext reactContext) {
-    if (name.equals(RNDSaveDialogModule.NAME)) {
+    if (name.equals(RNSaveDialogModule.NAME)) {
       return new RNSaveDialogModule(reactContext);
     } else {
       return null;
