@@ -1,8 +1,7 @@
 //
 //  RNCPromiseWrapper.h
-//  react-native-document-picker
+//  react-native-save-dialog
 //
-//  Created by Vojtech Novak on 02/10/2021.
 //
 
 #import <Foundation/Foundation.h>

@@ -110,10 +110,10 @@ RCT_EXPORT_METHOD(saveFile:(NSDictionary *)options
 {
     __block NSMutableDictionary *result = [NSMutableDictionary dictionary];
 
-    if (mode == UISaveDialogModeOpen) {
+    if (mode == UIDocumentPickerModeOpen) {
         [urlsInOpenMode addObject:url];
     }
-
+    
     // TODO handle error
     [url startAccessingSecurityScopedResource];
 
@@ -123,11 +123,11 @@ RCT_EXPORT_METHOD(saveFile:(NSDictionary *)options
     // TODO double check this implemenation, see eg. https://developer.apple.com/documentation/foundation/nsfilecoordinator/1412420-prepareforreadingitemsaturls
     [coordinator coordinateReadingItemAtURL:url options:NSFileCoordinatorReadingResolvesSymbolicLink error:&fileError byAccessor:^(NSURL *newURL) {
         // If the coordinated operation fails, then the accessor block never runs
-        result[FIELD_URI] = ((mode == UISaveDialogModeOpen) ? url : newURL).absoluteString;
-
+        result[FIELD_URI] = ((mode == UIDocumentPickerModeOpen) ? url : newURL).absoluteString;
+        
         NSError *copyError;
-        NSURL *maybeFileCopyPath = copyDestination ? [RNSaveDialog copyToUniqueDestinationFrom:newURL usingDestinationPreset:copyDestination error:&copyError] : nil;
-
+        NSURL *maybeFileCopyPath = copyDestination ? [RNDocumentPicker copyToUniqueDestinationFrom:newURL usingDestinationPreset:copyDestination error:&copyError] : nil;
+        
         if (!copyError) {
             result[FIELD_FILE_COPY_URI] = RCTNullIfNil(maybeFileCopyPath.absoluteString);
         } else {
@@ -143,7 +143,7 @@ RCT_EXPORT_METHOD(saveFile:(NSDictionary *)options
             result[FIELD_SIZE] = fileAttributes[NSFileSize];
         } else {
             result[FIELD_SIZE] = [NSNull null];
-            NSLog(@"RNSaveDialog: %@", attributesError);
+            NSLog(@"RNDocumentPicker: %@", attributesError);
         }
 
         if (newURL.pathExtension != nil) {
@@ -161,7 +161,7 @@ RCT_EXPORT_METHOD(saveFile:(NSDictionary *)options
         }
     }];
 
-    if (mode != UISaveDialogModeOpen) {
+    if (mode != UIDocumentPickerModeOpen) {
         [url stopAccessingSecurityScopedResource];
     }
 
@@ -191,7 +191,7 @@ RCT_EXPORT_METHOD(releaseSecureAccess:(NSArray<NSString *> *)uris
     resolve(nil);
 }
 
-- (void)SaveDialogWasCancelled:(UISaveDialogViewController *)controller
+- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller
 {
     [self rejectAsUserCancellationError];
 }
@@ -205,7 +205,7 @@ RCT_EXPORT_METHOD(releaseSecureAccess:(NSArray<NSString *> *)uris
 {
     // TODO make error nullable?
     NSError* error = [NSError errorWithDomain:NSCocoaErrorDomain code:NSUserCancelledError userInfo:nil];
-    [promiseWrapper reject:@"user canceled the document picker" withCode:E_DOCUMENT_PICKER_CANCELED withError:error];
+    [promiseWrapper reject:@"user canceled the save dialog" withCode:E_SAVE_DIALOG_CANCELED withError:error];
 }
 
 // Thanks to this guard, we won't compile this code when we build for the old architecture.

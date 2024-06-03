@@ -205,7 +205,6 @@ public class RNSaveDialogModule extends NativeSaveDialogSpec {
 
     try {
       List<Uri> uris = new ArrayList<>();
-      // condition order seems to matter: https://github.com/rnmods/react-native-document-picker/issues/317#issuecomment-645222635
       if (clipData != null && clipData.getItemCount() > 0) {
         final int length = clipData.getItemCount();
         for (int i = 0; i < length; ++i) {

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "react-native-document-picker": ["./src/index"]
+      "react-native-save-dialog": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

@@ -1,6 +1,6 @@
 #import "RCTConvert+RNSaveDialog.h"
 
-@implementation RCTConvert (RNSaveDialog)
+@implementation RCTConvert(RNSaveDialog)
 
 RCT_ENUM_CONVERTER(
     UIModalPresentationStyle,
