@@ -19,9 +19,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		134814201AA4EA6300B7C361 /* libDocumentPicker.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libDocumentPicker.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		B3E7B5881CC2AC0600A0062D /* DocumentPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DocumentPicker.h; sourceTree = "<group>"; };
-		B3E7B5891CC2AC0600A0062D /* DocumentPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DocumentPicker.m; sourceTree = "<group>"; };
+		134814201AA4EA6300B7C361 /* libSaveDialog.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSaveDialog.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		B3E7B5881CC2AC0600A0062D /* SaveDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaveDialog.h; sourceTree = "<group>"; };
+		B3E7B5891CC2AC0600A0062D /* SaveDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SaveDialog.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,7 +38,7 @@
 		134814211AA4EA7D00B7C361 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				134814201AA4EA6300B7C361 /* libDocumentPicker.a */,
+				134814201AA4EA6300B7C361 /* libSaveDialog.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -46,8 +46,8 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-				B3E7B5881CC2AC0600A0062D /* DocumentPicker.h */,
-				B3E7B5891CC2AC0600A0062D /* DocumentPicker.m */,
+				B3E7B5881CC2AC0600A0062D /* SaveDialog.h */,
+				B3E7B5891CC2AC0600A0062D /* SaveDialog.m */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -55,9 +55,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		58B511DA1A9E6C8500147676 /* DocumentPicker */ = {
+		58B511DA1A9E6C8500147676 /* SaveDialog */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "DocumentPicker" */;
+			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "SaveDialog" */;
 			buildPhases = (
 				58B511D71A9E6C8500147676 /* Sources */,
 				58B511D81A9E6C8500147676 /* Frameworks */,
@@ -67,9 +67,9 @@
 			);
 			dependencies = (
 			);
-			name = DocumentPicker;
+			name = SaveDialog;
 			productName = RCTDataManager;
-			productReference = 134814201AA4EA6300B7C361 /* libDocumentPicker.a */;
+			productReference = 134814201AA4EA6300B7C361 /* libSaveDialog.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -86,7 +86,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "DocumentPicker" */;
+			buildConfigurationList = 58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "SaveDialog" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -99,7 +99,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				58B511DA1A9E6C8500147676 /* DocumentPicker */,
+				58B511DA1A9E6C8500147676 /* SaveDialog */,
 			);
 		};
 /* End PBXProject section */
@@ -219,7 +219,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = DocumentPicker;
+				PRODUCT_NAME = SaveDialog;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -235,7 +235,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = DocumentPicker;
+				PRODUCT_NAME = SaveDialog;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -243,7 +243,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "DocumentPicker" */ = {
+		58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "SaveDialog" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B511ED1A9E6C8500147676 /* Debug */,
@@ -252,7 +252,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "DocumentPicker" */ = {
+		58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "SaveDialog" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B511F01A9E6C8500147676 /* Debug */,
