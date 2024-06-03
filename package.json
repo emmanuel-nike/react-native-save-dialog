@@ -12,7 +12,6 @@
     "lib",
     "android",
     "ios",
-    "windows",
     "cpp",
     "react-native-save-dialog.podspec",
     "!lib/typescript/example",
