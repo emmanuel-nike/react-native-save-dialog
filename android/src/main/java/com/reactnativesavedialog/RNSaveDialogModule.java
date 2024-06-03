@@ -152,6 +152,23 @@ public class RNSaveDialogModule extends NativeSaveDialogSpec {
   }
 
   @ReactMethod
+  public void saveFile(Promise promise) {
+    Activity currentActivity = getCurrentActivity();
+
+    if (currentActivity == null) {
+      promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Current activity does not exist");
+      return;
+    }
+    this.promise = promise;
+    try {
+      Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+      currentActivity.startActivityForResult(intent, PICK_DIR_REQUEST_CODE, null);
+    } catch (Exception e) {
+      sendError(E_FAILED_TO_SHOW_PICKER, "Failed to create directory picker", e);
+    }
+  }
+
+  @ReactMethod
   public void pickDirectory(Promise promise) {
     Activity currentActivity = getCurrentActivity();
 
