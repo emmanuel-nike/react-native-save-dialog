@@ -86,8 +86,7 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*",
-    "react-native-windows": "*"
+    "react-native": "*"
   },
   "peerDependenciesMeta": {
     "react-native-windows": {
@@ -118,7 +117,7 @@
       "tagName": "v${version}"
     },
     "npm": {
-      "publish": true
+      "publish": false
     },
     "github": {
       "release": true
