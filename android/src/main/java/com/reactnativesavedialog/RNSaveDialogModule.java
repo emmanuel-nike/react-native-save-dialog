@@ -114,7 +114,7 @@ public class RNSaveDialogModule extends NativeSaveDialogSpec {
   }
 
   @ReactMethod
-  public void pick(ReadableMap args, Promise promise) {
+  public void saveFile(ReadableMap args, Promise promise) {
     Activity currentActivity = getCurrentActivity();
     this.promise = promise;
     this.copyTo = args.hasKey(OPTION_COPY_TO) ? args.getString(OPTION_COPY_TO) : null;
@@ -151,60 +151,11 @@ public class RNSaveDialogModule extends NativeSaveDialogSpec {
     }
   }
 
-  @ReactMethod
-  public void saveFile(Promise promise) {
-    Activity currentActivity = getCurrentActivity();
-
-    if (currentActivity == null) {
-      promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Current activity does not exist");
-      return;
-    }
-    this.promise = promise;
-    try {
-      Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-      currentActivity.startActivityForResult(intent, PICK_DIR_REQUEST_CODE, null);
-    } catch (Exception e) {
-      sendError(E_FAILED_TO_SHOW_PICKER, "Failed to create directory picker", e);
-    }
-  }
-
-  @ReactMethod
-  public void pickDirectory(Promise promise) {
-    Activity currentActivity = getCurrentActivity();
-
-    if (currentActivity == null) {
-      promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Current activity does not exist");
-      return;
-    }
-    this.promise = promise;
-    try {
-      Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-      currentActivity.startActivityForResult(intent, PICK_DIR_REQUEST_CODE, null);
-    } catch (Exception e) {
-      sendError(E_FAILED_TO_SHOW_PICKER, "Failed to create directory picker", e);
-    }
-  }
+  
 
   @Override
   public void releaseSecureAccess(ReadableArray uris, Promise promise) {
     promise.reject("RNSaveDialog:releaseSecureAccess", "releaseSecureAccess is not supported on Android");
-  }
-
-  private void onPickDirectoryResult(int resultCode, Intent data) {
-    if (resultCode != Activity.RESULT_OK) {
-      sendError(E_UNKNOWN_ACTIVITY_RESULT, "Unknown activity result: " + resultCode);
-      return;
-    }
-
-    if (data == null || data.getData() == null) {
-      sendError(E_INVALID_DATA_RETURNED, "Invalid data returned by intent");
-      return;
-    }
-    Uri uri = data.getData();
-
-    WritableMap map = Arguments.createMap();
-    map.putString(FIELD_URI, uri.toString());
-    promise.resolve(map);
   }
 
   public void onShowActivityResult(int resultCode, Intent data, Promise promise) {
