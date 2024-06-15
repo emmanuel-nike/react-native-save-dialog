@@ -2,16 +2,34 @@ package com.reactnativesavedialog;
 
 import androidx.annotation.Nullable;
 
-import com.facebook.react.TurboReactPackage;
+import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.uimanager.ViewManager;
+
 import com.facebook.react.module.model.ReactModuleInfo;
 import com.facebook.react.module.model.ReactModuleInfoProvider;
 
 import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
-public class RNSaveDialogPackage extends TurboReactPackage {
+public class RNSaveDialogPackage extends ReactPackage {
+
+  @Override
+   public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
+       return Collections.emptyList();
+   }
+
+   @Override
+   public List<NativeModule> createNativeModules(
+           ReactApplicationContext reactContext) {
+       List<NativeModule> modules = new ArrayList<>();
+
+       modules.add(new RNSaveDialogModule(reactContext));
+
+       return modules;
+   }
 
   @Nullable
   @Override
@@ -21,26 +39,5 @@ public class RNSaveDialogPackage extends TurboReactPackage {
     } else {
       return null;
     }
-  }
-
-  @Override
-  public ReactModuleInfoProvider getReactModuleInfoProvider() {
-    return () -> {
-      boolean isTurboModule = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
-      final Map<String, ReactModuleInfo> moduleInfos = new HashMap<>();
-      moduleInfos.put(
-        RNSaveDialogModule.NAME,
-        new ReactModuleInfo(
-          RNSaveDialogModule.NAME,
-          RNSaveDialogModule.NAME,
-//          "SaveDialogModule",
-          false, // canOverrideExistingModule
-          false, // needsEagerInit
-          true, // hasConstants
-          false, // isCxxModule
-          isTurboModule // isTurboModule
-        ));
-      return moduleInfos;
-    };
   }
 }

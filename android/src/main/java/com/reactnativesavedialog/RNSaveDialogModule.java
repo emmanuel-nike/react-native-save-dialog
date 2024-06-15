@@ -159,6 +159,24 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
     promise.reject("RNSaveDialog:releaseSecureAccess", "releaseSecureAccess is not supported on Android");
   }
 
+  public void onPickDirectoryResult(int resultCode, Intent data) {
+    if (resultCode != Activity.RESULT_OK) {
+      sendError(E_UNKNOWN_ACTIVITY_RESULT, "Unknown activity result: " + resultCode);
+      return;
+    }
+
+    if (data == null || data.getData() == null) {
+      sendError(E_INVALID_DATA_RETURNED, "Invalid data returned by intent");
+      return;
+    }
+    Uri uri = data.getData();
+
+    WritableMap map = Arguments.createMap();
+    map.putString(FIELD_URI, uri.toString());
+    promise.resolve(map);
+  }
+
+
   public void onShowActivityResult(int resultCode, Intent data, Promise promise) {
     if (resultCode != Activity.RESULT_OK) {
       sendError(E_UNKNOWN_ACTIVITY_RESULT, "Unknown activity result: " + resultCode);
