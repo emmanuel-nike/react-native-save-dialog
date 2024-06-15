@@ -15,17 +15,14 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.facebook.react.bridge.NativeModule;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.BaseActivityEventListener;
 import com.facebook.react.bridge.GuardedResultAsyncTask;
 import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
@@ -40,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class RNSaveDialogModule extends ReactContextBaseJavaModule {
+public class RNSaveDialogModule extends NativeSaveDialogSpec {
   public static final String NAME = "RNSaveDialog";
   private static final int READ_REQUEST_CODE = 41;
   private static final int PICK_DIR_REQUEST_CODE = 42;
@@ -153,6 +150,8 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
       sendError(E_FAILED_TO_SHOW_PICKER, e.getLocalizedMessage());
     }
   }
+
+  
 
   @Override
   public void releaseSecureAccess(ReadableArray uris, Promise promise) {
