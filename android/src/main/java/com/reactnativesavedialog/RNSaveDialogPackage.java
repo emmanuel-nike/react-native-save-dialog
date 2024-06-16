@@ -7,14 +7,11 @@ import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 
-import com.facebook.react.module.model.ReactModuleInfo;
-import com.facebook.react.module.model.ReactModuleInfoProvider;
-
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
-public class RNSaveDialogPackage extends ReactPackage {
+public class RNSaveDialogPackage implements ReactPackage {
 
   @Override
    public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
@@ -32,7 +29,6 @@ public class RNSaveDialogPackage extends ReactPackage {
    }
 
   @Nullable
-  @Override
   public NativeModule getModule(String name, ReactApplicationContext reactContext) {
     if (name.equals(RNSaveDialogModule.NAME)) {
       return new RNSaveDialogModule(reactContext);

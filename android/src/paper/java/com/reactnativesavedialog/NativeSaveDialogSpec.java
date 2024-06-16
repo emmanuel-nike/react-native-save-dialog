@@ -10,28 +10,28 @@
  * @nolint
  */
 
-package com.reactnativesavedialog;
+ package com.reactnativesavedialog;
 
-import com.facebook.proguard.annotations.DoNotStrip;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.ReactModuleWithSpec;
-import com.facebook.react.bridge.ReadableArray;
-import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.turbomodule.core.interfaces.TurboModule;
-
-public abstract class NativeSaveDialogSpec extends ReactContextBaseJavaModule implements ReactModuleWithSpec, TurboModule {
-  public NativeSaveDialogSpec(ReactApplicationContext reactContext) {
-    super(reactContext);
-  }
-
-  @ReactMethod
-  @DoNotStrip
-  public abstract void saveFile(ReadableMap options, Promise promise);
-
-  @ReactMethod
-  @DoNotStrip
-  public abstract void releaseSecureAccess(ReadableArray uris, Promise promise);
-}
+ import com.facebook.proguard.annotations.DoNotStrip;
+ import com.facebook.react.bridge.Promise;
+ import com.facebook.react.bridge.ReactApplicationContext;
+ import com.facebook.react.bridge.ReactContextBaseJavaModule;
+ import com.facebook.react.bridge.ReactMethod;
+ import com.facebook.react.bridge.ReactModuleWithSpec;
+ import com.facebook.react.bridge.ReadableArray;
+ import com.facebook.react.bridge.ReadableMap;
+ 
+ public abstract class NativeSaveDialogSpec extends ReactContextBaseJavaModule implements ReactModuleWithSpec {
+   public NativeSaveDialogSpec(ReactApplicationContext reactContext) {
+     super(reactContext);
+   }
+ 
+   @ReactMethod
+   @DoNotStrip
+   public abstract void saveFile(ReadableMap options, Promise promise);
+ 
+   @ReactMethod
+   @DoNotStrip
+   public abstract void releaseSecureAccess(ReadableArray uris, Promise promise);
+ }
+ 
