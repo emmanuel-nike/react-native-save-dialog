@@ -1,5 +1,4 @@
-import type { TurboModule } from "react-native";
-import { TurboModuleRegistry } from "react-native";
+import { NativeModules } from "react-native";
 
 export type SaveDialogResponse = {
   uri: string;
@@ -10,11 +9,10 @@ export type SaveDialogResponse = {
   size: number | null;
 };
 
-export interface Spec extends TurboModule {
+export interface Spec {
   readonly getConstants: () => {};
   saveFile(options: Object): Promise<SaveDialogResponse[]>;
   releaseSecureAccess(uris: string[]): Promise<void>;
 }
 
-export const NativeSaveDialog =
-  TurboModuleRegistry.getEnforcing<Spec>("RNSaveDialog");
+export const NativeSaveDialog = NativeModules.RNSaveDialog as Spec;

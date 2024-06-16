@@ -44,14 +44,6 @@ android {
         targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
     }
-
-    sourceSets.main {
-        java {
-            if (!isNewArchitectureEnabled()) {
-                srcDirs += 'src/paper/java'
-            }
-        }
-    }
 }
 
 repositories {

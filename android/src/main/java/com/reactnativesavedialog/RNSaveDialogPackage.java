@@ -27,13 +27,4 @@ public class RNSaveDialogPackage implements ReactPackage {
 
        return modules;
    }
-
-  @Nullable
-  public NativeModule getModule(String name, ReactApplicationContext reactContext) {
-    if (name.equals(RNSaveDialogModule.NAME)) {
-      return new RNSaveDialogModule(reactContext);
-    } else {
-      return null;
-    }
-  }
 }

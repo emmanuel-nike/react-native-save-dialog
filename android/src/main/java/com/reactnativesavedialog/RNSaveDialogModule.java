@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class RNSaveDialogModule extends NativeSaveDialogSpec {
+public class RNSaveDialogModule extends ReactContextBaseJavaModule {
   public static final String NAME = "RNSaveDialog";
   private static final int READ_REQUEST_CODE = 41;
   private static final int PICK_DIR_REQUEST_CODE = 42;
@@ -150,11 +150,6 @@ public class RNSaveDialogModule extends NativeSaveDialogSpec {
       e.printStackTrace();
       sendError(E_FAILED_TO_SHOW_PICKER, e.getLocalizedMessage());
     }
-  }
-
-  @Override
-  public void releaseSecureAccess(ReadableArray uris, Promise promise) {
-    promise.reject("RNSaveDialog:releaseSecureAccess", "releaseSecureAccess is not supported on Android");
   }
 
   public void onPickDirectoryResult(int resultCode, Intent data) {
