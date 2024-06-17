@@ -41,6 +41,7 @@ import java.util.UUID;
 
 public class RNSaveDialogModule extends ReactContextBaseJavaModule {
   public static final String NAME = "RNSaveDialog";
+  private static final int CREATE_FILE_REQUEST_CODE = 10;
   private static final int READ_REQUEST_CODE = 41;
   private static final int PICK_DIR_REQUEST_CODE = 42;
 
@@ -53,7 +54,7 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
   private static final String E_UNEXPECTED_EXCEPTION = "UNEXPECTED_EXCEPTION";
 
   private static final String OPTION_TYPE = "type";
-  private static final String OPTION_COPY_TO = "copyTo";
+  private static final String OPTION_PATH = "path";
 
   private static final String FIELD_URI = "uri";
   private static final String FIELD_FILE_COPY_URI = "fileCopyUri";
@@ -63,7 +64,7 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
   private static final String FIELD_SIZE = "size";
 
   private Promise promise;
-  private String copyTo;
+  private String path;
 
   public RNSaveDialogModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -73,7 +74,7 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
   private final ActivityEventListener activityEventListener = new BaseActivityEventListener() {
     @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
-      boolean isForeignResult = requestCode != READ_REQUEST_CODE && requestCode != PICK_DIR_REQUEST_CODE;
+      boolean isForeignResult = requestCode != READ_REQUEST_CODE && requestCode != CREATE_FILE_REQUEST_CODE;
       if (isForeignResult) {
         return;
       }
@@ -119,7 +120,12 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
   public void saveFile(ReadableMap args, Promise promise) {
     Activity currentActivity = getCurrentActivity();
     this.promise = promise;
-    this.copyTo = args.hasKey(OPTION_COPY_TO) ? args.getString(OPTION_COPY_TO) : null;
+    this.path = args.hasKey(OPTION_PATH) ? args.getString(OPTION_PATH) : null;
+
+    if (this.path == null) {
+      sendError(E_FAILED_TO_SHOW_PICKER, "Path is required");
+      return;
+    }
 
     if (currentActivity == null) {
       sendError(E_ACTIVITY_DOES_NOT_EXIST, "Current activity does not exist");
@@ -127,24 +133,13 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
     }
 
     try {
-      Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+      String[] parts = this.path.split("/");
+      Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
       intent.addCategory(Intent.CATEGORY_OPENABLE);
-
       intent.setType("*/*");
-      if (!args.isNull(OPTION_TYPE)) {
-        ReadableArray types = args.getArray(OPTION_TYPE);
-        if (types != null) {
-          if (types.size() > 1) {
-            String[] mimeTypes = readableArrayToStringArray(types);
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-            intent.setType(String.join("|",mimeTypes));
-          } else if (types.size() == 1) {
-            intent.setType(types.getString(0));
-          }
-        }
-      }
+      intent.putExtra(Intent.EXTRA_TITLE, parts[parts.length - 1]);
 
-      currentActivity.startActivityForResult(intent, READ_REQUEST_CODE, Bundle.EMPTY);
+      currentActivity.startActivityForResult(intent, CREATE_FILE_REQUEST_CODE, Bundle.EMPTY);
     } catch (ActivityNotFoundException e) {
       sendError(E_UNABLE_TO_OPEN_FILE_TYPE, e.getLocalizedMessage());
     } catch (Exception e) {
@@ -163,11 +158,48 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
       sendError(E_INVALID_DATA_RETURNED, "Invalid data returned by intent");
       return;
     }
-    Uri uri = data.getData();
 
-    WritableMap map = Arguments.createMap();
-    map.putString(FIELD_URI, uri.toString());
-    promise.resolve(map);
+
+    //Save file in path to uri
+    try {
+      Uri uri = data.getData();
+      Log.i("RNSAVEDIALOG >", "onPickDirectoryResult: " + uri.getPath());
+
+      Bundle extras = data.getExtras();
+      if(extras != null) {
+        Log.i("RNSAVEDIALOG >", "onPickDirectoryResult: " + extras);
+      }
+
+
+      if(uri.getPath() == null) {
+        sendError(E_UNEXPECTED_EXCEPTION, "Uri is null");
+        return;
+      }
+      File destFile = new File(uri.getPath());
+      Uri copyPath = copyFile(getReactApplicationContext(), uri, destFile);
+
+      WritableMap map = Arguments.createMap();
+      map.putString(FIELD_URI, copyPath.toString());
+      promise.resolve(map);
+    } catch (Exception e) {
+      e.printStackTrace();
+      sendError(E_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
+      return;
+    }
+
+
+  }
+
+  public static Uri copyFile(Context context, Uri uri, File destFile) throws IOException {
+    try(InputStream inputStream = context.getContentResolver().openInputStream(uri);
+        FileOutputStream outputStream = new FileOutputStream(destFile)) {
+      byte[] buf = new byte[8192];
+      int len;
+      while ((len = inputStream.read(buf)) > 0) {
+        outputStream.write(buf, 0, len);
+      }
+      return Uri.fromFile(destFile);
+    }
   }
 
 
@@ -199,7 +231,7 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
         return;
       }
 
-      new ProcessDataTask(getReactApplicationContext(), uris, copyTo, promise).execute();
+      new ProcessDataTask(getReactApplicationContext(), uris, path, promise).execute();
     } catch (Exception e) {
       sendError(E_UNEXPECTED_EXCEPTION, e.getLocalizedMessage(), e);
     }
