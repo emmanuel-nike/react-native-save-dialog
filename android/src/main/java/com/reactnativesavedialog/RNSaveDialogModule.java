@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,7 +140,7 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
       intent.setType("*/*");
       intent.putExtra(Intent.EXTRA_TITLE, parts[parts.length - 1]);
 
-      currentActivity.startActivityForResult(intent, CREATE_FILE_REQUEST_CODE, Bundle.EMPTY);
+      currentActivity.startActivityForResult(intent, CREATE_FILE_REQUEST_CODE);
     } catch (ActivityNotFoundException e) {
       sendError(E_UNABLE_TO_OPEN_FILE_TYPE, e.getLocalizedMessage());
     } catch (Exception e) {
@@ -170,24 +171,43 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
         Log.i("RNSAVEDIALOG >", "onPickDirectoryResult: " + extras);
       }
 
-
       if(uri.getPath() == null) {
         sendError(E_UNEXPECTED_EXCEPTION, "Uri is null");
         return;
       }
-      File destFile = new File(uri.getPath());
-      Uri copyPath = copyFile(getReactApplicationContext(), uri, destFile);
+      writeFileContent(uri);
 
       WritableMap map = Arguments.createMap();
-      map.putString(FIELD_URI, copyPath.toString());
+      map.putString(FIELD_URI, uri.toString());
       promise.resolve(map);
     } catch (Exception e) {
       e.printStackTrace();
       sendError(E_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
-      return;
     }
+  }
 
-
+  private void writeFileContent(Uri uri) {
+    try {
+      OutputStream outputStream = getReactApplicationContext().getContentResolver().openOutputStream(uri);
+      if (outputStream != null) {
+        InputStream inputStream = getReactApplicationContext().getContentResolver().openInputStream(Uri.parse(this.path));
+        if(inputStream == null) {
+          outputStream.close();
+          sendError(E_UNEXPECTED_EXCEPTION, "Failed to open input stream");
+          return;
+        }
+        byte[] buf = new byte[8192];
+        int len;
+        while ((len = inputStream.read(buf)) > 0) {
+          outputStream.write(buf, 0, len);
+        }
+        outputStream.close();
+        inputStream.close();
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+      sendError(E_UNEXPECTED_EXCEPTION, e.getLocalizedMessage());
+    }
   }
 
   public static Uri copyFile(Context context, Uri uri, File destFile) throws IOException {
