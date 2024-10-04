@@ -21,6 +21,7 @@ export type SaveDialogOptions = {
   saveTo?: "cachesDirectory" | "documentDirectory";
   transitionStyle?: TransitionStyle;
   path?: string;
+  type?: string[];
 } & Pick<ModalPropsIOS, "presentationStyle">;
 
 export function saveFile(
@@ -28,13 +29,14 @@ export function saveFile(
 ): Promise<SaveDialogResponse[]> {
   const options = {
     ...opts,
+    type: opts?.type ?? [],
   };
 
   if (
     "copyTo" in options &&
     !["cachesDirectory", "documentDirectory"].includes(options.saveTo ?? "")
   ) {
-    throw new TypeError("Invalid copyTo option: " + options.copyTo);
+    throw new TypeError("Invalid saveTo option: " + options.saveTo);
   }
 
   return NativeSaveDialog.saveFile(options);
