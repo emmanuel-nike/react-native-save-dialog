@@ -118,6 +118,61 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void pick(ReadableMap args, Promise promise) {
+    Activity currentActivity = getCurrentActivity();
+    this.promise = promise;
+    this.copyTo = args.hasKey(OPTION_COPY_TO) ? args.getString(OPTION_COPY_TO) : null;
+
+    if (currentActivity == null) {
+      sendError(E_ACTIVITY_DOES_NOT_EXIST, "Current activity does not exist");
+      return;
+    }
+
+    try {
+      Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+      intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+      intent.setType("*/*");
+      if (!args.isNull(OPTION_TYPE)) {
+        ReadableArray types = args.getArray(OPTION_TYPE);
+        if (types != null) {
+          if (types.size() > 1) {
+            String[] mimeTypes = readableArrayToStringArray(types);
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+            intent.setType(String.join("|",mimeTypes));
+          } else if (types.size() == 1) {
+            intent.setType(types.getString(0));
+          }
+        }
+      }
+
+      currentActivity.startActivityForResult(intent, READ_REQUEST_CODE, Bundle.EMPTY);
+    } catch (ActivityNotFoundException e) {
+      sendError(E_UNABLE_TO_OPEN_FILE_TYPE, e.getLocalizedMessage());
+    } catch (Exception e) {
+      e.printStackTrace();
+      sendError(E_FAILED_TO_SHOW_PICKER, e.getLocalizedMessage());
+    }
+  }
+
+  @ReactMethod
+  public void pickDirectory(Promise promise) {
+    Activity currentActivity = getCurrentActivity();
+
+    if (currentActivity == null) {
+      promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Current activity does not exist");
+      return;
+    }
+    this.promise = promise;
+    try {
+      Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+      currentActivity.startActivityForResult(intent, PICK_DIR_REQUEST_CODE, null);
+    } catch (Exception e) {
+      sendError(E_FAILED_TO_SHOW_PICKER, "Failed to create directory picker", e);
+    }
+  }
+
+  @ReactMethod
   public void saveFile(ReadableMap args, Promise promise) {
     Activity currentActivity = getCurrentActivity();
     this.promise = promise;

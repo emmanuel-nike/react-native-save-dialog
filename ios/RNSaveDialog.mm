@@ -11,6 +11,9 @@
 static NSString *const E_SAVE_DIALOG_CANCELED = @"SAVE_DIALOG_CANCELED";
 static NSString *const E_INVALID_DATA_RETURNED = @"INVALID_DATA_RETURNED";
 
+static NSString *const OPTION_TYPE = @"type";
+static NSString *const OPTION_MULTIPLE = @"allowMultiSelection";
+
 static NSString *const FIELD_URI = @"uri";
 static NSString *const FIELD_FILE_COPY_URI = @"fileCopyUri";
 static NSString *const FIELD_COPY_ERR = @"copyError";
@@ -24,6 +27,7 @@ static NSString *const FIELD_SIZE = @"size";
 
 @implementation RNSaveDialog {
     NSString *saveDestination;
+    NSString *copyDestination;
     RNCPromiseWrapper* promiseWrapper;
 }
 
@@ -51,6 +55,31 @@ static NSString *const FIELD_SIZE = @"size";
 }
 
 RCT_EXPORT_MODULE()
+
+RCT_EXPORT_METHOD(pick:(NSDictionary *)options
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+{
+    UIDocumentPickerMode mode = UIDocumentPickerModeOpen;
+
+    UIModalPresentationStyle presentationStyle = [RCTConvert UIModalPresentationStyle:options[@"presentationStyle"]];
+    UIModalTransitionStyle transitionStyle = [RCTConvert UIModalTransitionStyle:options[@"transitionStyle"]];
+
+    [promiseWrapper setPromiseWithInProgressCheck:resolve rejecter:reject fromCallSite:@"pick"];
+
+    NSArray *allowedUTIs = [RCTConvert NSArray:options[OPTION_TYPE]];
+    UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:allowedUTIs inMode:mode];
+
+    documentPicker.modalPresentationStyle = presentationStyle;
+    documentPicker.modalTransitionStyle = transitionStyle;
+    documentPicker.delegate = self;
+    documentPicker.presentationController.delegate = self;
+    documentPicker.allowsMultipleSelection = [RCTConvert BOOL:options[OPTION_MULTIPLE]];
+
+    UIViewController *rootViewController = RCTPresentedViewController();
+
+    [rootViewController presentViewController:documentPicker animated:YES completion:nil];
+}
 
 RCT_EXPORT_METHOD(saveFile:(NSDictionary *)options
                   resolve:(RCTPromiseResolveBlock)resolve
@@ -86,11 +115,13 @@ RCT_EXPORT_METHOD(saveFile:(NSDictionary *)options
         // Save the picked document to the documents directory
         NSError *error;
         NSMutableDictionary *result = [self getMetadataForUrl:url error:&error];
-
-        NSData *fileData = [NSData dataWithContentsOfURL:url];
-        NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-        NSString *filePath = [documentsDirectory stringByAppendingPathComponent:url.lastPathComponent];
-        [fileData writeToFile:filePath atomically:YES];
+        
+        if(saveDestination) {
+            NSData *fileData = [NSData dataWithContentsOfURL:url];
+            NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+            NSString *filePath = [documentsDirectory stringByAppendingPathComponent:url.lastPathComponent];
+            [fileData writeToFile:filePath atomically:YES];
+        }
 
         if (result) {
             [results addObject:result];
@@ -119,7 +150,13 @@ RCT_EXPORT_METHOD(saveFile:(NSDictionary *)options
         result[FIELD_URI] = url.absoluteString;
         
         NSError *copyError;
-        NSURL *maybeFileCopyPath = saveDestination ? [RNSaveDialog copyToUniqueDestinationFrom:newURL usingDestinationPreset:saveDestination error:&copyError] : nil;
+        NSURL *maybeFileCopyPath = nil;
+        if(saveDestination) {
+            maybeFileCopyPath = [RNSaveDialog copyToUniqueDestinationFrom:newURL usingDestinationPreset:saveDestination error:&copyError];
+        }
+        else if(copyDestination) {
+            maybeFileCopyPath = [RNSaveDialog copyToUniqueDestinationFrom:newURL usingDestinationPreset:copyDestination error:&copyError];
+        }
         
         if (!copyError) {
             result[FIELD_FILE_COPY_URI] = RCTNullIfNil(maybeFileCopyPath.absoluteString);

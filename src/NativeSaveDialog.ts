@@ -1,6 +1,6 @@
-import { NativeModules } from "react-native";
+import { NativeModules } from 'react-native';
 
-export type SaveDialogResponse = {
+export type DialogResponse = {
   uri: string;
   name: string;
   copyError?: string;
@@ -9,9 +9,15 @@ export type SaveDialogResponse = {
   size: number | null;
 };
 
+export type DirectoryResponse = {
+  uri: string;
+};
+
 export interface Spec {
   readonly getConstants: () => {};
-  saveFile(options: Object): Promise<SaveDialogResponse[]>;
+  pick(options: Object): Promise<DialogResponse[]>;
+  pickDirectory(): Promise<DirectoryResponse>;
+  saveFile(options: Object): Promise<DialogResponse[]>;
   releaseSecureAccess(uris: string[]): Promise<void>;
 }
 
