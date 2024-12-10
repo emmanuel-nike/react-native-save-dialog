@@ -56,6 +56,7 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
 
   private static final String OPTION_TYPE = "type";
   private static final String OPTION_PATH = "path";
+  private static final String OPTION_COPY_TO = "copyTo";
 
   private static final String FIELD_URI = "uri";
   private static final String FIELD_FILE_COPY_URI = "fileCopyUri";
@@ -66,6 +67,7 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
 
   private Promise promise;
   private String path;
+  private String copyTo;
 
   public RNSaveDialogModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -117,6 +119,7 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
     return NAME;
   }
 
+
   @ReactMethod
   public void pick(ReadableMap args, Promise promise) {
     Activity currentActivity = getCurrentActivity();
@@ -146,29 +149,15 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
         }
       }
 
+//      boolean multiple = !args.isNull(OPTION_MULTIPLE) && args.getBoolean(OPTION_MULTIPLE);
+//      intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple);
+
       currentActivity.startActivityForResult(intent, READ_REQUEST_CODE, Bundle.EMPTY);
     } catch (ActivityNotFoundException e) {
       sendError(E_UNABLE_TO_OPEN_FILE_TYPE, e.getLocalizedMessage());
     } catch (Exception e) {
       e.printStackTrace();
       sendError(E_FAILED_TO_SHOW_PICKER, e.getLocalizedMessage());
-    }
-  }
-
-  @ReactMethod
-  public void pickDirectory(Promise promise) {
-    Activity currentActivity = getCurrentActivity();
-
-    if (currentActivity == null) {
-      promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Current activity does not exist");
-      return;
-    }
-    this.promise = promise;
-    try {
-      Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-      currentActivity.startActivityForResult(intent, PICK_DIR_REQUEST_CODE, null);
-    } catch (Exception e) {
-      sendError(E_FAILED_TO_SHOW_PICKER, "Failed to create directory picker", e);
     }
   }
 
