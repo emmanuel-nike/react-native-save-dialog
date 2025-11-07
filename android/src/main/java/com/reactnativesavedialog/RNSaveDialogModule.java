@@ -23,7 +23,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.BaseActivityEventListener;
-import com.facebook.react.bridge.GuardedResultAsyncTask;
+import com.facebook.react.bridge.GuardedAsyncTask;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
@@ -301,7 +301,7 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
     }
   }
 
-  private static class ProcessDataTask extends GuardedResultAsyncTask<ReadableArray> {
+  private static class ProcessDataTask extends GuardedAsyncTask<Void, Void> {
     private final WeakReference<Context> weakContext;
     private final List<Uri> uris;
     private final String copyTo;
@@ -316,15 +316,15 @@ public class RNSaveDialogModule extends ReactContextBaseJavaModule {
     }
 
     @Override
-    protected ReadableArray doInBackgroundGuarded() {
+    protected void doInBackgroundGuarded(Void... params) {
       WritableArray results = Arguments.createArray();
       for (Uri uri : uris) {
         results.pushMap(getMetadata(uri));
       }
-      return results;
+      //return results;
     }
 
-    @Override
+    //@Override
     protected void onPostExecuteGuarded(ReadableArray readableArray) {
       promise.resolve(readableArray);
     }
