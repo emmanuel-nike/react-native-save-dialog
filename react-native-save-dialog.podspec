@@ -29,11 +29,12 @@ Pod::Spec.new do |s|
           "CLANG_CXX_LANGUAGE_STANDARD" => "c++17"
       }
 
-      s.dependency "React-Codegen"
-      s.dependency "RCT-Folly"
-      s.dependency "RCTRequired"
-      s.dependency "RCTTypeSafety"
-      s.dependency "ReactCommon/turbomodule/core"
+      # install_modules_dependencies registers React-Codegen, RCT-Folly (at the version the
+      # installed React Native vendors), RCTRequired, RCTTypeSafety and
+      # ReactCommon/turbomodule/core. Declaring "RCT-Folly" manually breaks `pod install` on
+      # React Native 0.85+ (Folly 2024.11.18.00), because RCT-Folly is a third-party podspec
+      # that is only made resolvable through this helper.
+      install_modules_dependencies(s)
   end
 
 end
